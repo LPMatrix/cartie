@@ -1,11 +1,11 @@
-# Very short description of the package
+# Cartie
 
 [![Latest Version on Packagist](https://img.shields.io/packagist/v/lpmatrix/cartie.svg?style=flat-square)](https://packagist.org/packages/lpmatrix/cartie)
 [![Build Status](https://img.shields.io/travis/lpmatrix/cartie/master.svg?style=flat-square)](https://travis-ci.org/lpmatrix/cartie)
 [![Quality Score](https://img.shields.io/scrutinizer/g/lpmatrix/cartie.svg?style=flat-square)](https://scrutinizer-ci.com/g/lpmatrix/cartie)
 [![Total Downloads](https://img.shields.io/packagist/dt/lpmatrix/cartie.svg?style=flat-square)](https://packagist.org/packages/lpmatrix/cartie)
 
-This is where your description should go. Try and limit it to a paragraph or two, and maybe throw in a mention of what PSRs you support to avoid any confusion with users and contributors.
+A clean shopping cart implementation for Laravel. This package uses PSR-4 standard
 
 ## Installation
 
