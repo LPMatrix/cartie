@@ -4,6 +4,7 @@ namespace Lpmatrix\Cartie;
 
 class Cartie
 {
+<<<<<<< HEAD
     /**
 	 * An unique ID for the cart.
 	 *
