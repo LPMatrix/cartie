@@ -146,10 +146,11 @@ class Cartie
         $cart = array_reverse($this->CartContents);
         unset($cart['total_items']);
         unset($cart['cart_total']);
-        return collect($cart);
+        $rowid = $this->get();
+        dd( collect($cart)->pull($rowid));
     }
 
-    public function destroy() {
+    public function clear() {
         $this->CartContents = array('cart_total' => 0, 'total_items' => 0);
         unset($_SESSION['Cartie']);
     }

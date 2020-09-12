@@ -17,8 +17,46 @@ composer require lpmatrix/cartie
 
 ## Usage
 
+### Cartie::add()
+
 ``` php
-// Usage description here
+Cartie::add(['id'=>1, 'name'=>'Airforce', 'price'=>150, 'quantity'=>1]);
+```
+
+### Cartie::update()
+
+``` php
+Cartie::update(['rowid'=>'c9f0f895fb98ab9159f51fd0297e236d', 'quantity'=>2]);
+```
+
+### Cartie::remove()
+
+``` php
+Cartie::remove('c9f0f895fb98ab9159f51fd0297e236d');
+```
+
+### Cartie::clear()
+
+``` php
+Cartie::clear();
+```
+
+### Cartie::contents()
+
+``` php
+Cartie::contents();
+```
+
+### Cartie::totalItems()
+
+``` php
+Cartie::totalItems();
+```
+
+### Cartie::totalPrice()
+
+``` php
+Cartie::totalPrice();
 ```
 
 ### Testing
