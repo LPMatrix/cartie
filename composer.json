@@ -3,7 +3,10 @@
     "description": "A clean shopping cart implementation for Laravel",
     "keywords": [
         "lpmatrix",
-        "cartie"
+        "cartie",
+        "shoppingcart",
+        "cart",
+        "laravel"
     ],
     "homepage": "https://github.com/lpmatrix/cartie",
     "license": "MIT",
@@ -17,11 +20,11 @@
     ],
     "require": {
         "php": "^7.1",
-        "illuminate/support": "^6.0"
+        "illuminate/support": "^5.0|^6.0|^7.0"
     },
     "require-dev": {
-        "orchestra/testbench": "^4.0",
-        "phpunit/phpunit": "^8.0"
+        "orchestra/testbench": ">=3.8",
+        "phpunit/phpunit": "^8.0|^9.0"
     },
     "autoload": {
         "psr-4": {
@@ -50,11 +53,6 @@
                 "Cartie": "Lpmatrix\\Cartie\\CartieFacade"
             }
         }
-    },
-    "repositories": [
-    {
-      "type": "path",
-      "url": "C:\\Users\\Maryam\\Contacts\\Documents\\cartie"
     }
-  ]
+
 }

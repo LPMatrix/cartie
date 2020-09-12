@@ -2,331 +2,156 @@
 
 namespace Lpmatrix\Cartie;
 
+use Illuminate\Support\Collection;
+
 class Cartie
 {
-<<<<<<< HEAD
-    /**
-	 * An unique ID for the cart.
-	 *
-	 * @var string
-	 */
-	protected $cartId;
+	protected $CartContents;
 
-	/**
-	 * Maximum item allowed in the cart.
-	 *
-	 * @var int
-	 */
-	protected $cartMaxItem = 0;
+    public function __construct() {
+    	session_start();
+        // Grab the shopping cart array from the session array
+        if (isset($_SESSION['Cartie'])) {
+            $this->CartContents = $_SESSION['Cartie'];
+        } elseif ($this->CartContents === NULL) {
+            // No cart exists so we'll set some base values
+            $this->CartContents = array('cart_total' => 0, 'total_items' => 0);
+        }
+    }
 
-	/**
-	 * Maximum quantity of a item allowed in the cart.
-	 *
-	 * @var int
-	 */
-	protected $itemMaxQuantity = 0;
+    //add items to cart
+    public function add($item = array()) {
+        // Was any cart data passed?...
+        if (!is_array($item) || count($item) === 0) {
+            die('Error , The add method must be passed an array containing data.');
+            return FALSE;
+        } else {
+            if (is_numeric($item['id']) && is_numeric($item['quantity']) && is_numeric($item['price']) && isset($item['name'])) {
+                if (isset($item['options']) && count($item['options']) > 0) {
+                    $rowid = md5($item['id'] . serialize($item['options']));
+                } else {
+                    $rowid = md5($item['id']);
+                }
+                if (isset($this->CartContents[$rowid])) {
+                    $old_quantity = $this->CartContents[$rowid]['quantity'];
+                    $this->update(
+                            array(
+                                'rowid' => $rowid,
+                                'id' => $item['id'],
+                                'name' => $item['name'],
+                                'quantity' => $item['quantity'] + $old_quantity,
+                                'price' => $item['price'],
+                                'options' => (isset($item['options'])) ? $item['options'] : NULL
+                            )
+                    );
+                    return TRUE;
+                }
+                $item['rowid'] = $rowid;
+                $this->CartContents[$rowid] = $item;
+                $this->save_cart();
+            } else {
+                die('Error , The cart array must contain a product ID, quantity, price, and name.');
+                return FALSE;
+            }
+        }
+    }
 
-	/**
-	 * Enable or disable cookie.
-	 *
-	 * @var bool
-	 */
-	protected $useCookie = false;
+    //
+    //update cart
+    //
+    public function update($item = array()) {
+        if (!is_array($item) || count($item) === 0 || empty($item['rowid'])) {
+            die('Error , The update method must be passed an array containing rowid.');
+            return FALSE;
+        } else {
+            $rowid = strval($item['rowid']);
+            if (isset($this->CartContents[$rowid])) {
+                if (isset($item['price'])) {
+                    $item['price'] = (int) $item['price'];
+                }
+                if (isset($item['quantity'])) {
+                    if ($item['quantity'] === 0) {
+                        $this->remove($rowid);
+                        return TRUE;
+                    } else {
+                        $item['quantity'] = (int) $item['quantity'];
+                    }
+                }
 
-	/**
-	 * A collection of cart items.
-	 *
-	 * @var array
-	 */
-	private $items = [];
+                $keys = array_intersect(array_keys($this->CartContents[$rowid]), array_keys($item));
+                foreach (array_diff($keys, array('id', 'name')) as $key) {
+                    $this->CartContents[$rowid][$key] = $item[$key];
+                }
+                $this->save_cart();
+            }
+            return TRUE;
+        }
+    }
 
-	/**
-	 * Initialize cart.
-	 *
-	 * @param array $options
-	 */
-	public function __construct($options = [])
-	{
-		if (!session_id()) {
-			session_start();
-		}
+    //
+    //calculate prices and total amount
+    //
+    protected function save_cart() {
+        $this->CartContents['total_items'] = $this->CartContents['cart_total'] = 0;
+        foreach ($this->CartContents as $key => $val) {
+            if (!is_array($val) OR ! isset($val['price'], $val['name'], $val['quantity'], $val['id'], $val['rowid'])) {
+                continue;
+            }
 
-		if (isset($options['cartMaxItem']) && preg_match('/^\d+$/', $options['cartMaxItem'])) {
-			$this->cartMaxItem = $options['cartMaxItem'];
-		}
+            $this->CartContents['cart_total'] += ($val['price'] * $val['quantity']);
+            $this->CartContents['total_items'] += $val['quantity'];
+            $this->CartContents[$key]['subtotal'] = ($this->CartContents[$key]['price'] * $this->CartContents[$key]['quantity']);
+        }
+        if (count($this->CartContents) <= 2) {
+            unset($_SESSION);
+            return FALSE;
+        }
+        $_SESSION['Cartie'] = $this->CartContents;
+        return TRUE;
+    }
 
-		if (isset($options['itemMaxQuantity']) && preg_match('/^\d+$/', $options['itemMaxQuantity'])) {
-			$this->itemMaxQuantity = $options['itemMaxQuantity'];
-		}
+    //cart total
+    public function totalPrice() {
+        return $this->CartContents['cart_total'];
+    }
 
-		if (isset($options['useCookie']) && $options['useCookie']) {
-			$this->useCookie = true;
-		}
+    //cart total
+    public function totalItems() {
+        return $this->CartContents['total_items'];
+    }
 
-		$this->cartId = md5((isset($_SERVER['HTTP_HOST'])) ? $_SERVER['HTTP_HOST'] : 'cartie') . '_cart';
+    //remove item
+    public function remove($rowid) {
+        // unset & save
+        $r = settype($rowid, 'string');
+        if (isset($this->CartContents[$r])) {
+            unset($this->CartContents[$r]);
+            $this->save_cart();
+            return TRUE;
+        } else {
+            die('Error , The item doesn\'t exist');
+        }
+    }
 
-		$this->read();
-	}
+    public function get(){
+    	foreach ($this->CartContents as $key => $value) {
+    		$rowid = $key;
+    	}
+    	
+    	return $rowid;
+    }
 
-	/**
-	 * Get items in  cart.
-	 *
-	 * @return array
-	 */
-	public function getItems()
-	{
-		return $this->items;
-	}
+    public function contents() {
+        // arrange to the newest first
+        $cart = array_reverse($this->CartContents);
+        unset($cart['total_items']);
+        unset($cart['cart_total']);
+        return collect($cart);
+    }
 
-	/**
-	 * Check if the cart is empty.
-	 *
-	 * @return bool
-	 */
-	public function isEmpty()
-	{
-		return empty(array_filter($this->items));
-	}
+    public function destroy() {
+        $this->CartContents = array('cart_total' => 0, 'total_items' => 0);
+        unset($_SESSION['Cartie']);
+    }
 
-	/**
-	 * Get the total of item in cart.
-	 *
-	 * @return int
-	 */
-	public function getTotalItem()
-	{
-		$total = 0;
-
-		foreach ($this->items as $items) {
-			foreach ($items as $item) {
-				++$total;
-			}
-		}
-
-		return $total;
-	}
-
-	/**
-	 * Get the total of item quantity in cart.
-	 *
-	 * @return int
-	 */
-	public function getTotalQuantity()
-	{
-		$quantity = 0;
-
-		foreach ($this->items as $items) {
-			foreach ($items as $item) {
-				$quantity += $item['quantity'];
-			}
-		}
-
-		return $quantity;
-	}
-
-	/**
-	 * Get the sum of a attribute from cart.
-	 *
-	 * @param string $attribute
-	 *
-	 * @return int
-	 */
-	public function getAttributeTotal($attribute = 'price')
-	{
-		$total = 0;
-
-		foreach ($this->items as $items) {
-			foreach ($items as $item) {
-				if (isset($item['attributes'][$attribute])) {
-					$total += $item['attributes'][$attribute] * $item['quantity'];
-				}
-			}
-		}
-
-		return $total;
-	}
-
-	/**
-	 * Remove all items from cart.
-	 */
-	public function clear()
-	{
-		$this->items = [];
-		$this->write();
-	}
-
-	/**
-	 * Check if a item exist in cart.
-	 *
-	 * @param string $id
-	 * @param array  $attributes
-	 *
-	 * @return bool
-	 */
-	public function isItemExists($id, $attributes = [])
-	{
-		$attributes = (is_array($attributes)) ? array_filter($attributes) : [$attributes];
-
-		if (isset($this->items[$id])) {
-			$hash = md5(json_encode($attributes));
-			foreach ($this->items[$id] as $item) {
-				if ($item['hash'] == $hash) {
-					return true;
-				}
-			}
-		}
-
-		return false;
-	}
-
-	/**
-	 * Add item to cart.
-	 *
-	 * @param string $id
-	 * @param int    $quantity
-	 * @param array  $attributes
-	 *
-	 * @return bool
-	 */
-	public function add($id, $quantity = 1, $attributes = [])
-	{
-		$quantity = (preg_match('/^\d+$/', $quantity)) ? $quantity : 1;
-		$attributes = (is_array($attributes)) ? array_filter($attributes) : [$attributes];
-		$hash = md5(json_encode($attributes));
-
-		if (count($this->items) >= $this->cartMaxItem && $this->cartMaxItem != 0) {
-			return false;
-		}
-
-		if (isset($this->items[$id])) {
-			foreach ($this->items[$id] as $index => $item) {
-				if ($item['hash'] == $hash) {
-					$this->items[$id][$index]['quantity'] += $quantity;
-					$this->items[$id][$index]['quantity'] = ($this->itemMaxQuantity < $this->items[$id][$index]['quantity'] && $this->itemMaxQuantity != 0) ? $this->itemMaxQuantity : $this->items[$id][$index]['quantity'];
-
-					$this->write();
-
-					return true;
-				}
-			}
-		}
-
-		$this->items[$id][] = [
-			'id'         => $id,
-			'quantity'   => ($quantity > $this->itemMaxQuantity && $this->itemMaxQuantity != 0) ? $this->itemMaxQuantity : $quantity,
-			'hash'       => $hash,
-			'attributes' => $attributes,
-		];
-
-		$this->write();
-
-		return true;
-	}
-
-	/**
-	 * Update item quantity.
-	 *
-	 * @param string $id
-	 * @param int    $quantity
-	 * @param array  $attributes
-	 *
-	 * @return bool
-	 */
-	public function update($id, $quantity = 1, $attributes = [])
-	{
-		$quantity = (preg_match('/^\d+$/', $quantity)) ? $quantity : 1;
-
-		if ($quantity == 0) {
-			$this->remove($id, $attributes);
-
-			return true;
-		}
-
-		if (isset($this->items[$id])) {
-			$hash = md5(json_encode(array_filter($attributes)));
-
-			foreach ($this->items[$id] as $index => $item) {
-				if ($item['hash'] == $hash) {
-					$this->items[$id][$index]['quantity'] = $quantity;
-					$this->items[$id][$index]['quantity'] = ($this->itemMaxQuantity < $this->items[$id][$index]['quantity'] && $this->itemMaxQuantity != 0) ? $this->itemMaxQuantity : $this->items[$id][$index]['quantity'];
-
-					$this->write();
-
-					return true;
-				}
-			}
-		}
-
-		return false;
-	}
-
-	/**
-	 * Remove item from cart.
-	 *
-	 * @param string $id
-	 * @param array  $attributes
-	 *
-	 * @return bool
-	 */
-	public function remove($id, $attributes = [])
-	{
-		if (!isset($this->items[$id])) {
-			return false;
-		}
-
-		if (empty($attributes)) {
-			unset($this->items[$id]);
-
-			$this->write();
-
-			return true;
-		}
-		$hash = md5(json_encode(array_filter($attributes)));
-
-		foreach ($this->items[$id] as $index => $item) {
-			if ($item['hash'] == $hash) {
-				unset($this->items[$id][$index]);
-
-				$this->write();
-
-				return true;
-			}
-		}
-
-		return false;
-	}
-
-	/**
-	 * Destroy cart session.
-	 */
-	public function destroy()
-	{
-		$this->items = [];
-
-		if ($this->useCookie) {
-			setcookie($this->cartId, '', -1);
-		} else {
-			unset($_SESSION[$this->cartId]);
-		}
-	}
-
-	/**
-	 * Read items from cart session.
-	 */
-	private function read()
-	{
-		$this->items = ($this->useCookie) ? json_decode((isset($_COOKIE[$this->cartId])) ? $_COOKIE[$this->cartId] : '[]', true) : json_decode((isset($_SESSION[$this->cartId])) ? $_SESSION[$this->cartId] : '[]', true);
-	}
-
-	/**
-	 * Write changes into cart session.
-	 */
-	private function write()
-	{
-		if ($this->useCookie) {
-			setcookie($this->cartId, json_encode(array_filter($this->items)), time() + 604800);
-		} else {
-			$_SESSION[$this->cartId] = json_encode(array_filter($this->items));
-		}
-	}
 }
