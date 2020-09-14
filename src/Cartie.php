@@ -155,8 +155,8 @@ class Cartie
         $cart = array_reverse($this->CartContents);
         unset($cart['total_items']);
         unset($cart['cart_total']);
-        $rowid = $this->get();
-        dd(collect($cart)->pull($rowid));
+        //$rowid = $this->get();
+        return collect($cart);
     }
 
     public function clear()
