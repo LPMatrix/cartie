@@ -6,10 +6,11 @@ use Illuminate\Support\Collection;
 
 class Cartie
 {
-	protected $CartContents;
+    protected $CartContents;
 
-    public function __construct() {
-    	session_start();
+    public function __construct()
+    {
+        session_start();
         // Grab the shopping cart array from the session array
         if (isset($_SESSION['Cartie'])) {
             $this->CartContents = $_SESSION['Cartie'];
@@ -20,7 +21,8 @@ class Cartie
     }
 
     //add items to cart
-    public function add($item = array()) {
+    public function add($item = array())
+    {
         // Was any cart data passed?...
         if (!is_array($item) || count($item) === 0) {
             die('Error , The add method must be passed an array containing data.');
@@ -35,14 +37,14 @@ class Cartie
                 if (isset($this->CartContents[$rowid])) {
                     $old_quantity = $this->CartContents[$rowid]['quantity'];
                     $this->update(
-                            array(
-                                'rowid' => $rowid,
-                                'id' => $item['id'],
-                                'name' => $item['name'],
-                                'quantity' => $item['quantity'] + $old_quantity,
-                                'price' => $item['price'],
-                                'options' => (isset($item['options'])) ? $item['options'] : NULL
-                            )
+                        array(
+                            'rowid' => $rowid,
+                            'id' => $item['id'],
+                            'name' => $item['name'],
+                            'quantity' => $item['quantity'] + $old_quantity,
+                            'price' => $item['price'],
+                            'options' => (isset($item['options'])) ? $item['options'] : NULL
+                        )
                     );
                     return TRUE;
                 }
@@ -59,7 +61,8 @@ class Cartie
     //
     //update cart
     //
-    public function update($item = array()) {
+    public function update($item = array())
+    {
         if (!is_array($item) || count($item) === 0 || empty($item['rowid'])) {
             die('Error , The update method must be passed an array containing rowid.');
             return FALSE;
@@ -91,10 +94,11 @@ class Cartie
     //
     //calculate prices and total amount
     //
-    protected function save_cart() {
+    protected function save_cart()
+    {
         $this->CartContents['total_items'] = $this->CartContents['cart_total'] = 0;
         foreach ($this->CartContents as $key => $val) {
-            if (!is_array($val) OR ! isset($val['price'], $val['name'], $val['quantity'], $val['id'], $val['rowid'])) {
+            if (!is_array($val) or !isset($val['price'], $val['name'], $val['quantity'], $val['id'], $val['rowid'])) {
                 continue;
             }
 
@@ -111,17 +115,20 @@ class Cartie
     }
 
     //cart total
-    public function totalPrice() {
+    public function totalPrice()
+    {
         return $this->CartContents['cart_total'];
     }
 
     //cart total
-    public function totalItems() {
+    public function totalItems()
+    {
         return $this->CartContents['total_items'];
     }
 
     //remove item
-    public function remove($rowid) {
+    public function remove($rowid)
+    {
         // unset & save
         $r = settype($rowid, 'string');
         if (isset($this->CartContents[$r])) {
@@ -133,26 +140,28 @@ class Cartie
         }
     }
 
-    public function get(){
-    	foreach ($this->CartContents as $key => $value) {
-    		$rowid = $key;
-    	}
-    	
-    	return $rowid;
+    public function get()
+    {
+        foreach ($this->CartContents as $key => $value) {
+            $rowid = $key;
+        }
+
+        return $rowid;
     }
 
-    public function contents() {
+    public function contents()
+    {
         // arrange to the newest first
         $cart = array_reverse($this->CartContents);
         unset($cart['total_items']);
         unset($cart['cart_total']);
         $rowid = $this->get();
-        dd( collect($cart)->pull($rowid));
+        dd(collect($cart)->pull($rowid));
     }
 
-    public function clear() {
+    public function clear()
+    {
         $this->CartContents = array('cart_total' => 0, 'total_items' => 0);
         unset($_SESSION['Cartie']);
     }
-
 }
