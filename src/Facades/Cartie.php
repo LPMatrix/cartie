@@ -1,13 +1,13 @@
 <?php
 
-namespace Lpmatrix\Cartie;
+namespace Lpmatrix\Cartie\Facades;
 
 use Illuminate\Support\Facades\Facade;
 
 /**
  * @see \Lpmatrix\Cartie\Skeleton\SkeletonClass
  */
-class CartieFacade extends Facade
+class Cartie extends Facade
 {
     /**
      * Get the registered name of the component.

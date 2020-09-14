@@ -50,7 +50,7 @@
                 "Lpmatrix\\Cartie\\CartieServiceProvider"
             ],
             "aliases": {
-                "Cartie": "Lpmatrix\\Cartie\\CartieFacade"
+                "Cartie": "Lpmatrix\\Cartie\\Facades\\Cartie"
             }
         }
     }
