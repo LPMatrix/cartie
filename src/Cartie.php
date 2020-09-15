@@ -130,9 +130,8 @@ class Cartie
     public function remove($rowid)
     {
         // unset & save
-        $r = settype($rowid, 'string');
-        if (isset($this->CartContents[$r])) {
-            unset($this->CartContents[$r]);
+        if (isset($this->CartContents[$rowid])) {
+            unset($this->CartContents[$rowid]);
             $this->save_cart();
             return TRUE;
         } else {
@@ -155,8 +154,11 @@ class Cartie
         $cart = array_reverse($this->CartContents);
         unset($cart['total_items']);
         unset($cart['cart_total']);
-        //$rowid = $this->get();
-        return collect($cart);
+        $thecart =[];
+        foreach ($cart as $key => $value) {
+            array($thecart[$key] = $value);
+        }
+        return collect($thecart);
     }
 
     public function clear()
