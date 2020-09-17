@@ -107,7 +107,7 @@ class Cartie
             $this->CartContents[$key]['subtotal'] = ($this->CartContents[$key]['price'] * $this->CartContents[$key]['quantity']);
         }
         if (count($this->CartContents) <= 2) {
-            unset($_SESSION);
+            unset($_SESSION['Cartie']);
             return FALSE;
         }
         $_SESSION['Cartie'] = $this->CartContents;
