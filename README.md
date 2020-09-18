@@ -2,8 +2,9 @@
 
 [![Latest Version on Packagist](https://img.shields.io/packagist/v/lpmatrix/cartie.svg?style=flat-square)](https://packagist.org/packages/lpmatrix/cartie)
 [![Build Status](https://img.shields.io/travis/lpmatrix/cartie/master.svg?style=flat-square)](https://travis-ci.org/lpmatrix/cartie)
-[![Quality Score](https://img.shields.io/scrutinizer/g/lpmatrix/cartie.svg?style=flat-square)](https://scrutinizer-ci.com/g/lpmatrix/cartie)
+<a href="https://packagist.org/packages/lpmatrix/cartie"><img src="https://poser.pugx.org/laravel/framework/license.svg" alt="License"></a> 
 [![Total Downloads](https://img.shields.io/packagist/dt/lpmatrix/cartie.svg?style=flat-square)](https://packagist.org/packages/lpmatrix/cartie)
+[![Made in Nigeria](https://img.shields.io/badge/made%20in-nigeria-008751.svg?style=flat-square)](https://github.com/acekyd/made-in-nigeria)
 
 A clean shopping cart implementation for Laravel. This package uses PSR-4 standard
 
