@@ -21,7 +21,7 @@ class Cartie
     }
 
     //add items to cart
-    public function add($item = array())
+    public function add($item = array(), $discount = 0)
     {
         // Was any cart data passed?...
         if (!is_array($item) || count($item) === 0) {
@@ -50,6 +50,9 @@ class Cartie
                 }
                 $item['rowid'] = $rowid;
                 $this->CartContents[$rowid] = $item;
+                if ($discount > 0) {
+                    $this->addDiscount($rowid, $discount);
+                }
                 $this->save_cart();
             } else {
                 die('Error , The cart array must contain a product ID, quantity, price, and name.');
@@ -104,7 +107,11 @@ class Cartie
 
             $this->CartContents['cart_total'] += ($val['price'] * $val['quantity']);
             $this->CartContents['total_items'] += $val['quantity'];
-            $this->CartContents[$key]['subtotal'] = ($this->CartContents[$key]['price'] * $this->CartContents[$key]['quantity']);
+            $subtotal = $this->CartContents[$key]['subtotal'] = ($this->CartContents[$key]['price'] * $this->CartContents[$key]['quantity']);
+            if (isset($this->CartContents[$key]['discount'])) {
+                $this->CartContents[$key]['subtotal'] = $subtotal - ($subtotal * ($this->CartContents[$key]['discount'] / 100));
+                $this->CartContents[$key]['subtotalWithoutDiscount'] = $subtotal;
+            }
         }
         if (count($this->CartContents) <= 2) {
             unset($_SESSION['Cartie']);
@@ -165,5 +172,12 @@ class Cartie
     {
         $this->CartContents = array('cart_total' => 0, 'total_items' => 0);
         unset($_SESSION['Cartie']);
+    }
+
+    protected function addDiscount($rowid, $discount)
+    {
+        if (isset($this->CartContents[$rowid])) {
+            $this->CartContents[$rowid]['discount'] = $discount;
+        }
     }
 }
